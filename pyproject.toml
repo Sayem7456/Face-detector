@@ -1,0 +1,4 @@
+[tool.pytest.ini_options]
+markers = [
+    "manual: mark test as requiring manual hardware setup",
+]

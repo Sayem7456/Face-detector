@@ -1,0 +1,41 @@
+camera:
+  source: 0
+  width: 640
+  height: 480
+  target_fps: 15
+  process_every_n_frames: 2
+  mirror_preview: true
+
+model:
+  provider: CPUExecutionProvider
+  detection_size: [640, 640]
+  minimum_detection_confidence: 0.60
+  minimum_face_width: 70
+  minimum_face_height: 70
+
+recognition:
+  similarity_threshold: 0.45
+  identity_margin: 0.05
+  top_k_average: 1
+  unknown_label: Unknown
+
+temporal_confirmation:
+  history_size: 6
+  required_matches: 4
+  maximum_gap_seconds: 2.0
+
+alerts:
+  enabled: true
+  cooldown_seconds: 60
+  popup_title: Person Alert
+  save_snapshot: false
+  snapshot_directory: data/logs/snapshots
+
+logging:
+  enabled: true
+  event_file: data/logs/events.csv
+  log_unknown_people: false
+
+privacy:
+  store_live_frames: false
+  store_unknown_faces: false

@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Virtual environment
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Data — reference images (never commit biometric data)
+data/reference_images/*
+!data/reference_images/.gitkeep
+
+# Data — embeddings (biometric identifiers)
+data/embeddings/*
+!data/embeddings/.gitkeep
+
+# Data — logs
+data/logs/*
+!data/logs/.gitkeep
+
+# Data — snapshots
+data/snapshots/*
+!data/snapshots/.gitkeep
+
+# Data — calibration
+data/calibration/*
+!data/calibration/.gitkeep
+
+# Model cache
+.insightface/
+
+# Test artifacts
+.pytest_cache/
+test-results/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Config override (local)
+config.local.yaml
