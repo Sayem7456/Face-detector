@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from pathlib import Path
 from typing import Any
 
@@ -65,6 +65,16 @@ class ModelConfig:
             raise ValueError(
                 f"model.minimum_face_height must be >= 20, got "
                 f"{self.minimum_face_height}"
+            )
+        if not isinstance(self.detection_size, list) or len(self.detection_size) != 2:
+            raise ValueError(
+                f"model.detection_size must be a list of two ints, got "
+                f"{self.detection_size!r}"
+            )
+        if not all(isinstance(v, int) and v >= 64 for v in self.detection_size):
+            raise ValueError(
+                f"model.detection_size values must be ints >= 64, got "
+                f"{self.detection_size}"
             )
 
 
@@ -162,6 +172,27 @@ class AppConfig:
     privacy: PrivacyConfig = field(default_factory=PrivacyConfig)
 
 
+_TOP_LEVEL_SECTIONS = {
+    "camera", "model", "recognition", "temporal_confirmation",
+    "alerts", "logging", "privacy",
+}
+
+
+def _field_names(cls: type) -> set[str]:
+    return {f.name for f in fields(cls)}
+
+
+def _check_unknown_keys(
+    section: str, raw: dict[str, Any], known: set[str]
+) -> None:
+    extra = set(raw.keys()) - known
+    if extra:
+        raise ValueError(
+            f"Unknown key(s) in '{section}': {', '.join(sorted(extra))}. "
+            f"Valid keys: {', '.join(sorted(known))}"
+        )
+
+
 def _validate_paths(config: AppConfig) -> None:
     if config.logging.enabled:
         log_path = Path(config.logging.event_file)
@@ -170,10 +201,6 @@ def _validate_paths(config: AppConfig) -> None:
                 f"logging.event_file must have a .csv extension, got "
                 f"{config.logging.event_file}"
             )
-    if config.alerts.save_snapshot:
-        snap_path = Path(config.alerts.snapshot_directory)
-        if not snap_path.is_absolute():
-            pass
 
 
 def load_config(path: str | Path = "config.yaml") -> AppConfig:
@@ -195,39 +222,52 @@ def load_config(path: str | Path = "config.yaml") -> AppConfig:
 
 
 def _parse_config(raw: dict[str, Any]) -> AppConfig:
+    _check_unknown_keys("top-level", raw, _TOP_LEVEL_SECTIONS)
+
     camera_raw = raw.get("camera", {})
     if not isinstance(camera_raw, dict):
         raise ValueError("'camera' section must be a mapping")
+    _check_unknown_keys("camera", camera_raw, _field_names(CameraConfig))
     camera = CameraConfig(**camera_raw)
 
     model_raw = raw.get("model", {})
     if not isinstance(model_raw, dict):
         raise ValueError("'model' section must be a mapping")
+    _check_unknown_keys("model", model_raw, _field_names(ModelConfig))
     model = ModelConfig(**model_raw)
 
     recognition_raw = raw.get("recognition", {})
     if not isinstance(recognition_raw, dict):
         raise ValueError("'recognition' section must be a mapping")
+    _check_unknown_keys(
+        "recognition", recognition_raw, _field_names(RecognitionConfig)
+    )
     recognition = RecognitionConfig(**recognition_raw)
 
     temporal_raw = raw.get("temporal_confirmation", {})
     if not isinstance(temporal_raw, dict):
         raise ValueError("'temporal_confirmation' section must be a mapping")
+    _check_unknown_keys(
+        "temporal_confirmation", temporal_raw, _field_names(TemporalConfirmationConfig)
+    )
     temporal = TemporalConfirmationConfig(**temporal_raw)
 
     alerts_raw = raw.get("alerts", {})
     if not isinstance(alerts_raw, dict):
         raise ValueError("'alerts' section must be a mapping")
+    _check_unknown_keys("alerts", alerts_raw, _field_names(AlertsConfig))
     alerts = AlertsConfig(**alerts_raw)
 
     logging_raw = raw.get("logging", {})
     if not isinstance(logging_raw, dict):
         raise ValueError("'logging' section must be a mapping")
+    _check_unknown_keys("logging", logging_raw, _field_names(LoggingConfig))
     logging_cfg = LoggingConfig(**logging_raw)
 
     privacy_raw = raw.get("privacy", {})
     if not isinstance(privacy_raw, dict):
         raise ValueError("'privacy' section must be a mapping")
+    _check_unknown_keys("privacy", privacy_raw, _field_names(PrivacyConfig))
     privacy = PrivacyConfig(**privacy_raw)
 
     cfg = AppConfig(

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pytest
 import yaml
 
 from src.config import (
@@ -70,7 +71,7 @@ def test_privacy_defaults() -> None:
     assert cfg.store_unknown_faces is False
 
 
-def test_parse_valid_full_config(tmp_path) -> None:
+def test_parse_valid_full_config() -> None:
     raw = {
         "camera": {"source": 0, "width": 800, "height": 600},
         "model": {"provider": "CPUExecutionProvider"},
@@ -92,7 +93,7 @@ def test_parse_valid_full_config(tmp_path) -> None:
     assert cfg.privacy.store_live_frames is True
 
 
-def test_parse_empty_sections_use_defaults(tmp_path) -> None:
+def test_parse_empty_sections_use_defaults() -> None:
     raw = {}
     cfg = _parse_config(raw)
     assert cfg.camera.width == 640
@@ -208,3 +209,59 @@ def test_alerts_cooldown_negative() -> None:
         assert False, "Expected ValueError"
     except ValueError:
         pass
+
+
+# --- New regression tests for review fixes ---
+
+def test_model_detection_size_wrong_type() -> None:
+    try:
+        ModelConfig(detection_size="640,640")
+        assert False, "Expected ValueError"
+    except ValueError:
+        pass
+
+
+def test_model_detection_size_wrong_length() -> None:
+    try:
+        ModelConfig(detection_size=[640])
+        assert False, "Expected ValueError"
+    except ValueError:
+        pass
+
+
+def test_model_detection_size_too_small() -> None:
+    try:
+        ModelConfig(detection_size=[32, 32])
+        assert False, "Expected ValueError"
+    except ValueError:
+        pass
+
+
+def test_parse_unknown_camera_key_raises() -> None:
+    raw = {"camera": {"wifth": 800}}
+    try:
+        _parse_config(raw)
+        assert False, "Expected ValueError"
+    except ValueError as exc:
+        assert "wifth" in str(exc)
+
+
+def test_parse_unknown_recognition_key_raises() -> None:
+    raw = {"recognition": {"similiarity_threshold": 0.5}}
+    try:
+        _parse_config(raw)
+        assert False, "Expected ValueError"
+    except ValueError as exc:
+        assert "similiarity_threshold" in str(exc)
+
+
+def test_parse_unknown_top_level_key_raises() -> None:
+    raw = {"camera": {}, "database": {}}
+    try:
+        _parse_config(raw)
+        assert False, "Expected ValueError"
+    except ValueError as exc:
+        assert "database" in str(exc)
+
+
+

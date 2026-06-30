@@ -36,8 +36,8 @@ def test_camera_release_on_keyboard_interrupt() -> None:
     mock_cap.release.assert_called_once()
 
 
-def test_camera_returns_nonzero_on_failure() -> None:
-    """Camera failure should exit with code 1."""
+def test_camera_returns_nonzero_releases_on_failure() -> None:
+    """Camera failure should exit with code 1 and release the handle."""
     mock_cap = MagicMock()
     mock_cap.isOpened.return_value = False
 
@@ -48,6 +48,7 @@ def test_camera_returns_nonzero_on_failure() -> None:
             main(["--source", "9", "--no-preview", "--timeout", "1"])
 
     assert exc_info.value.code == 1
+    mock_cap.release.assert_called_once()
 
 
 def test_camera_read_failure_breaks_loop() -> None:

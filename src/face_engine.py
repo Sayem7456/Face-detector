@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
-import cv2
 import numpy as np
 import numpy.typing as npt
 
@@ -35,7 +33,7 @@ class FaceEngine:
             providers=[self.config.model.provider],
             allowed_modules=["detection", "recognition"],
         )
-        ctx_id = 0 if self.config.model.provider == "CPUExecutionProvider" else 0
+        ctx_id = -1
         app.prepare(ctx_id=ctx_id, det_size=self.config.model.detection_size)
         return app
 

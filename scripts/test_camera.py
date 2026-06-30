@@ -74,24 +74,26 @@ def main(argv: list[str] | None = None) -> None:
         height = args.height
 
     cap = cv2.VideoCapture(source)
-    if not cap.isOpened():
-        print(f"ERROR: Could not open camera source: {source}", file=sys.stderr)
-        sys.exit(1)
-
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-
-    actual_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    actual_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    print(f"Camera source: {source}")
-    print(f"Requested resolution: {width}x{height}")
-    print(f"Actual resolution:    {actual_width}x{actual_height}")
-
+    preview_name = "Camera Test (press Q to quit)"
     start = time.monotonic()
     frame_count = 0
-    preview_name = "Camera Test (press Q to quit)"
 
     try:
+        if not cap.isOpened():
+            print(
+                f"ERROR: Could not open camera source: {source}",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+
+        actual_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        actual_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        print(f"Camera source: {source}")
+        print(f"Requested resolution: {width}x{height}")
+        print(f"Actual resolution:    {actual_width}x{actual_height}")
         while True:
             if args.timeout > 0 and (time.monotonic() - start) >= args.timeout:
                 print(f"Timeout reached ({args.timeout}s).")

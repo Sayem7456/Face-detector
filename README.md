@@ -5,7 +5,7 @@ and sends desktop popups when one of three enrolled people appears.
 
 ## Requirements
 
-- **Python 3.11+** (tested on 3.11)
+- **Python 3.11+** (tested on 3.12)
 - **CPU only** — no CUDA, no GPU
 - **Ubuntu** (for `notify-send` notifications)
 

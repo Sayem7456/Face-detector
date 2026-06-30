@@ -34,7 +34,7 @@ data/snapshots/*
 data/calibration/*
 !data/calibration/.gitkeep
 
-# Model cache
+# Model cache (typically ~/.insightface/ — entry kept for subproject overrides)
 .insightface/
 
 # Test artifacts
