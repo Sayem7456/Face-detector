@@ -31,8 +31,9 @@ data/snapshots/*
 !data/snapshots/.gitkeep
 
 # Data — calibration
-data/calibration/*
-!data/calibration/.gitkeep
+data/calibration/**
+!data/calibration/**/
+!data/calibration/**/.gitkeep
 
 # Model cache (typically ~/.insightface/ — entry kept for subproject overrides)
 .insightface/
